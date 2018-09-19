@@ -23,6 +23,7 @@ from array import array
 from keras.utils import to_categorical
 from keras.utils import np_utils
 from ann_visualizer.visualize import ann_viz
+import config
 
 
 # read row data
@@ -36,6 +37,7 @@ data_test = np.genfromtxt('rem_test.csv', delimiter=',')
 modelClassifier = KNeighborsClassifier(n_neighbors=3)
 #modelClassifier = DecisionTreeClassifier()
 #modelClassifier = MLPClassifier(hidden_layer_sizes=(300,), random_state=1, max_iter=1, warm_start=True)
+#modelClassifier = MLPClassifier()
 
 modelRegressor = KNeighborsRegressor(n_neighbors=3)
 #modelRegressor = DecisionTreeRegressor()
@@ -231,6 +233,7 @@ np.savetxt('rsrp_train_x.csv', X, delimiter=',', fmt='%f')
 np.savetxt('rsrp_train_y.csv', Y, delimiter=',', fmt='%f')
 y_train = np.genfromtxt('rsrp_train_y.csv', delimiter=',')
 a = np.array([])
+'''
 for i in range (len(y_train)):
     y_train_data = y_train[i]
     if y_train_data == 120:
@@ -243,6 +246,26 @@ for i in range (len(y_train)):
        y_train_data = 4
     elif y_train_data == 302:
        y_train_data = 5
+    else:
+       y_train_data = 0
+       #print "pci is not in range"
+    a = np.append(a,[y_train_data])
+    np.savetxt('y_train_data.csv', a, delimiter=',', fmt='%f')
+'''
+for i in range (len(y_train)):
+    y_train_data = y_train[i]
+    if y_train_data == 37:
+       y_train_data = 1
+    elif y_train_data == 38:
+       y_train_data = 2
+    elif y_train_data == 39:
+       y_train_data = 3
+    elif y_train_data == 40:
+       y_train_data = 4
+    elif y_train_data == 41:
+       y_train_data = 5
+    elif y_train_data == 42:
+       y_train_data = 6
     else:
        y_train_data = 0
        #print "pci is not in range"
@@ -382,48 +405,104 @@ def build_knn_model(X_train, y_train):
 X = pci_train[:,0:-1]
 Y = pci_train[:,-1]
 #model = build_knn_model(X,Y)
-map_size = [106, 26] 
+map_size = [105, 27]
+#map_size = [106, 26] 
 x_resolution = map_size[0]
 y_resolution = map_size[1]
+#pixel_pos = pixel_pos[:, : int(enb_feature_num) + 2] # 3 is lng lat pci
+#xy = xy.reshape(-1,1)
+#np.savetxt('xy.csv', xy, delimiter=',', fmt='%f')
+xy = np.genfromtxt('pixel_pos.csv', delimiter=',')
+output = modelClassifier.predict(xy)
+np.savetxt('output.csv', output, delimiter=',', fmt='%f')
 pci = []
     #Get the maxium output
     #for i in range(len(output)) :
     #    print output[i]
     #raw_input()
 '''
-output = model.predict(pci_map_test)
-np.savetxt('model.predict(pci_map_test).csv', output, delimiter=',', fmt='%f')
-
-np.savetxt('pci.csv', pci, delimiter=',', fmt='%f')
-
-z = np.reshape(output, (y_resolution, x_resolution))
-z[:] = map(list,zip(*z[::-1]))
-
+for i in output :
+    i = i.astype(np.float)
+    max_idx = np.argmax((i))
+    #print "max_idx==",max_idx
+    if (i[max_idx] == 0.0) :
+        pci.append(1)  # all pci probability is 0
+    else :
+        pci.append(max_idx)
+'''
+pci_input =  config.PCI['pci_value']
+pci_config = np.array(pci_input)
+f = open('pci_result.csv', 'w') #write the pci result into file
+f.write('x,y,pci,\n')
+#z = np.reshape(output, (y_resolution, x_resolution))
+#z[:] = map(list,zip(*z[::-1]))
+#z = np.genfromtxt('z.csv', delimiter=',')
 #z_pred = np.hstack((xy, pci_map_pred))
-#z = np.reshape(z_pred, (y_resolution+1, x_resolution+1))
+output = output.reshape(27,105)
+z = np.reshape(output, (y_resolution, x_resolution))
+np.savetxt('z.csv', z, delimiter=',', fmt='%f')
 for j in range(y_resolution):
         for i in range(x_resolution) : 
-            pci_z = z[j][i]
-            if pci_z == 37 :#37
+            pci = z[j][i]
+            if pci == 37 :#37
+                #pci_real = pci_config[0] 
                 plt.plot(round(i), round(j), color='blue', marker = 's', markersize=5, alpha=.1)
-            elif pci_z == 38 :#38
+            elif pci == 38 :#38
+                #pci_real = pci_config[1]
                 plt.plot(round(i), round(j), color='green', marker = 's', markersize=5, alpha=.1 )
-            elif pci_z == 39 :#39
+            elif pci == 39 :#39
+                #pci_real = pci_config[2]
                 plt.plot(round(i), round(j), color='red', marker = 's', markersize=5, alpha=.1 )
-            elif pci_z == 40:#40
-                plt.plot(round(i), round(j), color='chocolate', marker = 's', markersize=5, alpha=.1)
-            elif pci_z == 41:#41
+            elif pci == 40:#40
+                #pci_real = pci_config[3]
                 plt.plot(round(i), round(j), color='skyblue', marker = 's', markersize=5, alpha=.1)
-            elif pci_z == 42:#42
+            elif pci == 41:#41
+                #pci_real = pci_config[4]
+                plt.plot(round(i), round(j), color='orange', marker = 's', markersize=5, alpha=.1)
+            elif pci == 42:#42
+                #pci_real = pci_config[5]
+                plt.plot(round(i), round(j), color='deeppink', marker = 's', markersize=5, alpha=.1)
+            elif pci == 120:#120
+                #pci_real = pci_config[6]
+                plt.plot(round(i), round(j), color='yellow', marker = 's', markersize=5, alpha=.1)
+            elif pci == 151:#151
+                #pci_real = pci_config[7]
+                plt.plot(round(i), round(j), color='yellow', marker = 's', markersize=5, alpha=.1)
+            elif pci == 154:#154
+                #pci_real = pci_config[8]
                 plt.plot(round(i), round(j), color='yellow', marker = 's', markersize=5, alpha=.1)
             else :                 
-                pci_z = 1000
-                plt.plot(round(i), round(j), color='black', marker = 's', markersize=5, alpha=.1 )
+                pci_real = -1
+                plt.plot(round(i), round(j), color='white', marker = 's', markersize=5, alpha=.1 )
+            result = str(i) + ',' + str(j) + ',' + str(pci) +',' + '\n'
+            f.write(result)  # python will convert \n to os.linesep
 
+f.close()  # you can omit in most cases as the destructor will call it
 img = plt.imread("./pic/51_5F-3.png")
 plt.imshow(img, zorder=0, extent=[0, map_size[0], 0, map_size[1]])
+x, y = convert_location_data (260,215) #37
+plt.plot(round(abs(x)), round(abs(y)), color='blue', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+
+#SC1 (199, 151)
+#x, y = convert_location_data (199, 868)
+x, y = convert_location_data (480, 158) #38
+plt.plot(round(abs(x)), round(abs(y)), color='green', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+    
+x, y = convert_location_data (630, 210) #39
+plt.plot(round(abs(x)), round(abs(y)), color='red', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+#plt.plot(round(abs(x)), round(abs(y)), color='purple', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+    
+x, y = convert_location_data (710, 275) #40
+plt.plot(round(abs(x)), round(abs(y)), color='skyblue', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+    
+x, y = convert_location_data (765, 145) #41
+plt.plot(round(abs(x)), round(abs(y)), color='orange', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+#plt.plot(round(abs(x)), round(abs(y)), color='red', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
+
+x, y = convert_location_data (908, 130) #42
+plt.plot(round(abs(x)), round(abs(y)), color='deeppink', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
 plt.savefig('test', dpi=200)
-'''
+
 fig_pci = plt.pcolor(pci_plot, vmin=1, vmax=100, cmap='gist_ncar')
 #plt.colorbar(heatmap_pci)
 #plt.axis([0, 35, 0, 25])

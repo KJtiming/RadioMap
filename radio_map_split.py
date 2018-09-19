@@ -6,7 +6,7 @@ set_feature = np.array([19,19,19,19,19,19], np.float)
 
 
 # read row data
-data = np.genfromtxt('set3_all.csv', delimiter=',')
+data = np.genfromtxt('set3_mod.csv', delimiter=',')
 
 def convert_location_data(x, y) :
     '''
