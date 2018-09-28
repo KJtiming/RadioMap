@@ -11,6 +11,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVR
 from sklearn.multioutput import MultiOutputRegressor
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt2
 import matplotlib.image as mpimg
 from PIL import Image
 import numpy as np
@@ -154,75 +155,93 @@ map_feature = data_test[1,2:-14]
 #print "data_test[1,2:-6]==",data_test[1,2:-6]
 #x1, y1 = convert_location_data (868, 199)
 #x2, y2 = convert_location_data (735, 206)
-x = np.zeros([6,1])
-y = np.zeros([6,1])
+x = np.zeros([6])
+y = np.zeros([6])
 x[0], y[0] = convert_location_data (260, 215)
 x[1], y[1] = convert_location_data (480, 158)
 x[2], y[2] = convert_location_data (630, 210)
 x[3], y[3] = convert_location_data (710, 275)
 x[4], y[4] = convert_location_data (765, 145)
 x[5], y[5] = convert_location_data (908, 130)
-print "x[0],y[0]==",x[0], y[0]
-print "x[1],y[1]==",x[1], y[1]
-print "x[2],y[2]==",x[2], y[2]
-print "x[3],y[3]==",x[3], y[3]
-print "x[4],y[4]==",x[4], y[4]
-print "x[5],y[5]==",x[5], y[5]
+print "x[0], y[0]==",x[0], y[0]
+print "x[1], y[1]==",x[1], y[1]
+print "x[2], y[2]==",x[2], y[2]
+print "x[3], y[3]==",x[3], y[3]
+print "x[4], y[4]==",x[4], y[4]
+print "x[5], y[5]==",x[5], y[5]
 
 cell = ['37','38','39','40','41','42']
-dis = np.zeros([6,1])
-ang = np.zeros([6,1])
+dis = np.zeros([6])
+ang = np.zeros([6])
 for a in range(0, 106):
     for b in range(0, 26):
         xy = np.array([a, b], np.float)
         #print "xy==",xy
         #print "xy.shape==",xy.shape
         #print "xy.ndim==",xy.ndim
-        for i in range(5) : 
+        for i in range(0,6) : 
+            #print "i==",i
             dis[i] = cal_distance_to_cell (x[i], y[i], xy[0], xy[1])
             ang[i] = cal_angle_to_cell (x[i]-xy[0], y[i]-xy[1])
-        #ang1 = cal_angle_to_cell (xy[0]-x1, xy[0]-y1)
-        #ang2 = cal_angle_to_cell (xy[0]-x2, xy[0]-y2)
+            #print "dis[i]==",dis[i]
+            #print "ang[i]==",ang[i]
+            #ang[i] = cal_angle_to_cell (xy[0]-x1, xy[0]-y1)
+            #ang[i] = cal_angle_to_cell (xy[0]-x2, xy[0]-y2)
         #if a==80 and b==18:
           #print "ang1==",ang1
           #print "ang2==",ang2
           #print "dis1==",dis1
           #print "dis2==",dis2
-        if 45<=ang[i]<90:
-            ang[i]=1
-        if 0<=ang[i]<45:
-            ang[i]=2
-        if -45<=ang[i]<0:
-            ang[i]=3
-        if -90<=ang[i]<-45:
-            ang[i]=4
-        if -135<=ang[i]<-90:
-            ang[i]=5
-        if -180<=ang[i]<-135:
-            ang[i]=6
-        if 135<=ang[i]<180:
-            ang[i]=7
-        if 90<=ang[i]<135:
-            ang[i]=8
-        dis_np = np.array(dis[i])
-        ang_np = np.array(ang[i])
+            if 45<=ang[i]<90:
+                ang[i]=1
+            if 0<=ang[i]<45:
+                ang[i]=2
+            if -45<=ang[i]<0:
+                ang[i]=3
+            if -90<=ang[i]<-45:
+                ang[i]=4
+            if -135<=ang[i]<-90:
+                ang[i]=5
+            if -180<=ang[i]<-135:
+                ang[i]=6
+            if 135<=ang[i]<180:
+                ang[i]=7
+            if 90<=ang[i]<135:
+                ang[i]=8
+        dis_np = np.array(dis)
+        ang_np = np.array(ang)
+        merge = np.concatenate((dis_np,ang_np))
+        np.savetxt('merge.csv', merge, delimiter=',', fmt='%f')
         #if a==80 and b==18:
           #print "ang1==",ang1
           #print "ang2==",ang2
-        add_feature = np.array([dis[i],ang[i]])
+        
+        #add_feature = np.append(add_feature,merge)
+        #print "merge==",merge
+        #add_feature = np.concatenate((add_feature,merge))
+        #np.savetxt('add_feature.csv', add_feature, delimiter=',', fmt='%f')
+        #add_feature = np.array(dis[6],dis[1],dis[2],dis[3],dis[4],dis[5],ang[6],ang[1],ang[2],ang[3],ang[4],ang[5])
         #print "add_feature==",add_feature
-        np.savetxt('dis.csv', dis, delimiter=',', fmt='%f')
-        np.savetxt('ang.csv', ang, delimiter=',', fmt='%f')
-        np.savetxt('xy.csv', xy, delimiter=',', fmt='%f')
+        
         #print "data_test.shape[1]==",data_test.shape[1]
         if data_test.shape[1] == 4:
-            pci_map_test[idx,:] = xy
+           pci_map_test[idx,:] = xy
         else: 
-            pci_map_test[idx,:] = np.hstack((xy))
-            #pci_map_test[idx,:] = np.hstack((xy, map_feature, add_feature))
-            #pci_map_test[idx,:] = np.hstack((xy,map_feature,dis[0],dis[1],dis[2],dis[3],dis[4],dis[5],ang[0],ang[1],ang[2],ang[3],ang[4],ang[5]))
-        #print "pci_map_test[idx,:]==",pci_map_test[idx,:]
+           #pci_map_test[idx,:] = np.hstack((xy))
+           #pci_map_test[idx,:] = np.hstack((xy,add_feature))
+           #pci_map_test[idx,:] = np.hstack((xy, map_feature, add_feature))
+           xy_dim = np.ndim(xy)
+           merge_dim = np.ndim(merge)
+           #print "xy_dim==",xy_dim
+           #print "merge_dim==",merge_dim
+           pci_map_test[idx,:] = np.hstack((xy,merge))
+           #pci_map_test[idx,:] = np.hstack((xy,map_feature,dis[1],dis[2],dis[3],dis[4],dis[5],dis[6],ang[1],ang[2],ang[3],ang[4],ang[5],ang[6]))
+           #print "pci_map_test[idx,:]==",pci_map_test[idx,:]
         idx = idx+1
+dis_np = np.array(dis)
+ang_np = np.array(ang)
+np.savetxt('dis_np.csv', dis_np, delimiter=',', fmt='%f')
+np.savetxt('ang_np.csv', ang_np, delimiter=',', fmt='%f')
 np.savetxt('pci_map_test.csv', pci_map_test, delimiter=',', fmt='%f')
 X = pci_train[:,0:-1]
 Y = pci_train[:,-1]
@@ -412,8 +431,34 @@ y_resolution = map_size[1]
 #pixel_pos = pixel_pos[:, : int(enb_feature_num) + 2] # 3 is lng lat pci
 #xy = xy.reshape(-1,1)
 #np.savetxt('xy.csv', xy, delimiter=',', fmt='%f')
+merge_data = np.genfromtxt('pixel_pos_new.csv', delimiter=',')
+print "merge_data[0][8]",merge_data[0][8]
+print "merge_data[0][9]",merge_data[0][9]
+for j in range(0,2835):
+    for i in range(8,14):
+        if 45<=merge_data[j][i]<90:
+           merge_data[j][i]=1
+        if 0<=merge_data[j][i]<45:
+           merge_data[j][i]=2
+        if -45<=merge_data[j][i]<0:
+           merge_data[j][i]=3
+        if -90<=merge_data[j][i]<-45:
+           merge_data[j][i]=4
+        if -135<=merge_data[j][i]<-90:
+           merge_data[j][i]=5
+        if -180<=merge_data[j][i]<-135:
+           merge_data[j][i]=6
+        if 135<=merge_data[j][i]<180:
+           merge_data[j][i]=7
+        if 90<=merge_data[j][i]<135:
+           merge_data[j][i]=8
+np.savetxt('pixel_pos_ang.csv', merge_data, delimiter=',', fmt='%f')
 xy = np.genfromtxt('pixel_pos.csv', delimiter=',')
-output = modelClassifier.predict(xy)
+zero = np.zeros((2835,12))
+merge = np.concatenate((xy,zero),axis=1)
+
+#output = modelClassifier.predict(xy)
+output = modelClassifier.predict(merge_data)
 np.savetxt('output.csv', output, delimiter=',', fmt='%f')
 pci = []
     #Get the maxium output
@@ -502,7 +547,7 @@ plt.plot(round(abs(x)), round(abs(y)), color='orange', marker = 'o', markersize=
 x, y = convert_location_data (908, 130) #42
 plt.plot(round(abs(x)), round(abs(y)), color='deeppink', marker = 'o', markersize=10, markeredgecolor = 'black', markeredgewidth = 0.8)
 plt.savefig('test', dpi=200)
-
+plt.close('all')
 fig_pci = plt.pcolor(pci_plot, vmin=1, vmax=100, cmap='gist_ncar')
 #plt.colorbar(heatmap_pci)
 #plt.axis([0, 35, 0, 25])
